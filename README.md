@@ -33,7 +33,9 @@ README.
 
 ## Create a Serverless service
 
-To scaffold a new service interactively with the Serverless Framework:
+For an overview, see the official [Serverless Framework Getting Started
+guide](https://www.serverless.com/framework/docs/getting-started). To scaffold
+a new service interactively:
 
 1. Run `serverless` in the directory where you want the service created.
 2. Select an AWS Node.js HTTP API template.
