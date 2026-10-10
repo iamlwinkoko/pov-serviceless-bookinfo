@@ -1,0 +1,24 @@
+org: lwinkokocu
+app: productpage-app
+service: productpage
+
+provider:
+  name: aws
+  runtime: nodejs24.x
+  architecture: arm64
+  timeout: 15
+  environment:
+    DETAIL_API_URL: https://6e5e8pssy6.execute-api.us-east-1.amazonaws.com
+    RATING_API_URL: https://ecnjfmyce2.execute-api.us-east-1.amazonaws.com
+    REVIEW_API_URL: https://r9orm7ys16.execute-api.us-east-1.amazonaws.com
+
+functions:
+  productpage:
+    handler: handler.productpage
+    events:
+      - httpApi:
+          path: /
+          method: get
+      - httpApi:
+          path: /productpage
+          method: get

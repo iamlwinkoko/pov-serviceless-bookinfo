@@ -1,0 +1,34 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: lwinkokocu
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: review-app
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: review
+
+provider:
+  name: aws
+  runtime: nodejs24.x
+  architecture: arm64
+  # Uncomment to easily set up a custom domain. Read the docs for more details:
+  # https://www.serverless.com/framework/docs/providers/aws/guide/domains
+  # domain: api.example.com
+
+functions:
+  review1:
+    handler: handler.review1
+    events:
+      - httpApi:
+          path: /review1
+          method: get
+  review2:
+    handler: handler.review2
+    events:
+      - httpApi:
+          path: /review2
+          method: get
+  review3:
+    handler: handler.review3
+    events:
+      - httpApi:
+          path: /review3
+          method: get
