@@ -45,3 +45,17 @@ cd ../productpage && serverless deploy
 The productpage backend API base URLs are currently configured in
 [`productpage/serverless.yml`](./productpage/serverless.yml). Update those
 values if the backend APIs are redeployed with different endpoints.
+
+## Remove deployed services
+
+When you have finished testing, remove the deployed Serverless stacks to delete
+their Lambda functions, API Gateway APIs, and related stack resources from AWS.
+Run each command from the project root; remove productpage first so its UI and
+aggregation API are taken down before the backends:
+
+```sh
+cd productpage && serverless remove
+cd ../review && serverless remove
+cd ../rating && serverless remove
+cd ../detail && serverless remove
+```
