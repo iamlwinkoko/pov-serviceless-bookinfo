@@ -6,7 +6,7 @@ Framework. The `productpage` service calls the separate `detail`, `rating`, and
 
 ## Deployed result
 
-![Bookinfo productpage showing responses from the backend services](./image.png)
+![Bookinfo productpage showing responses from the backend services](./serverless.png)
 
 The productpage UI is available at
 <https://xk5rc9rqp6.execute-api.us-east-1.amazonaws.com/>.
