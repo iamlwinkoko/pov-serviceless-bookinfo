@@ -31,16 +31,47 @@ book details, ratings, or review content.
 Each service has its own directory containing a `serverless.yml`, handler, and
 README.
 
+## Create a Serverless service
+
+To scaffold a new service interactively with the Serverless Framework:
+
+1. Run `serverless` in the directory where you want the service created.
+2. Select an AWS Node.js HTTP API template.
+3. Enter a project name when prompted. This becomes the service directory.
+4. Choose **Create a new app**, then enter an app name.
+5. Change into the new service directory:
+
+   ```sh
+   cd projectname
+   ```
+
+   Replace `projectname` with the name you entered.
+
+The interactive scaffolding is only needed when creating a new service. This
+repository already contains the four services and their Serverless
+configuration files.
+
 ## Deploy
 
-Install and configure the Serverless Framework and AWS credentials first.
-Deploy the backend services, then deploy productpage:
+Install and configure the Serverless Framework and AWS credentials first. From
+the repository root, deploy each service and inspect its deployed endpoint:
 
 ```sh
-cd detail && serverless deploy
-cd ../rating && serverless deploy
-cd ../review && serverless deploy
-cd ../productpage && serverless deploy
+cd detail
+serverless deploy
+serverless info
+
+cd ../rating
+serverless deploy
+serverless info
+
+cd ../review
+serverless deploy
+serverless info
+
+cd ../productpage
+serverless deploy
+serverless info
 ```
 
 The productpage backend API base URLs are currently configured in
