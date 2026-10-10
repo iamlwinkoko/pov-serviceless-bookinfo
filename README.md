@@ -1,8 +1,9 @@
 # Bookinfo Serverless
 
-A Bookinfo application built with AWS Lambda, API Gateway, and the Serverless
-Framework. The `productpage` service calls the separate `detail`, `rating`, and
-`review` APIs and displays the responses in a browser UI.
+This repository demonstrates splitting Bookinfo into independently deployed
+services. The `productpage` aggregates the detail, rating, and review APIs into
+a single browser page, providing a simple example of service-to-service
+integration with serverless functions.
 
 ## Deployed result
 
