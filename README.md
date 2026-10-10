@@ -1,43 +1,55 @@
-# Bookinfo Serverless
+# Bookinfo Serverless on AWS
 
-A learning/demo project that shows how to deploy a small microservices-style application using **AWS Lambda, Amazon API Gateway, and the Serverless Framework**.
+A hands-on project demonstrating how to deploy a microservices-style application
+with **AWS Lambda, Amazon API Gateway, and the Serverless Framework**.
 
-Inspired by the [Istio Bookinfo Application](https://istio.io/latest/docs/examples/bookinfo/), it demonstrates independently deployed Lambda services communicating over HTTP APIs. The `productpage` service calls the backend APIs and combines their responses into a browser page or JSON response. The backend handlers currently return greeting placeholders; this repository demonstrates service deployment and integration rather than a complete book catalog.
+Inspired by the [Istio Bookinfo Application](https://istio.io/latest/docs/examples/bookinfo/),
+this project focuses on independently deployed services and communication
+between them through HTTP APIs. The backend handlers currently return greeting
+messages, so this is an example of serverless deployment and service
+integration—not a complete book catalog.
 
 ## Architecture
 
 ![Bookinfo Serverless architecture](./architecture.png)
 
-The application consists of four independent services:
+The application consists of four independently deployed services:
 
-| Service | API route(s) | Current behavior |
+| Service | API route(s) | Current purpose |
 | --- | --- | --- |
-| `productpage` | `GET /`, `GET /productpage` | Serves the UI at `/`; aggregates backend responses as JSON at `/productpage`. |
-| `detail` | `GET /detail` | Returns a greeting placeholder for the detail service. |
-| `rating` | `GET /rating` | Returns a greeting placeholder for the rating service. |
-| `review` | `GET /review1`, `GET /review2`, `GET /review3` | Three endpoints that return greeting placeholders. |
+| `productpage` | `GET /`, `GET /productpage` | Serves a browser UI at `/` and aggregates backend responses as JSON at `/productpage`. |
+| `detail` | `GET /detail` | Detail-service greeting placeholder. |
+| `rating` | `GET /rating` | Rating-service greeting placeholder. |
+| `review` | `GET /review1`, `GET /review2`, `GET /review3` | Three review-service greeting placeholders. |
 
 ### How it works
 
-1. A client sends a request through Amazon API Gateway.
+1. A client sends a request to the productpage API through Amazon API Gateway.
 2. API Gateway invokes the `productpage` Lambda function.
-3. `productpage` requests the detail endpoint, the rating endpoint, and all three review endpoints concurrently.
+3. `productpage` calls the detail and rating endpoints and all three review
+   endpoints over HTTP.
 4. Each backend Lambda returns its response.
-5. The JSON endpoint combines the responses; the browser UI displays them in service cards.
+5. `productpage` aggregates the responses for the JSON API; the browser UI
+   displays them in service cards.
 
 Each service is deployed independently using the Serverless Framework.
 
 ## Example result
 
-![Deployed Bookinfo productpage result](./result.png)
+![Example Bookinfo productpage result](./result.png)
 
-> **Note:** The backend services currently return simple greeting messages for integration testing rather than actual book details, ratings, or reviews.
+The screenshot shows the UI displaying the current greeting placeholders, not
+real book details, ratings, or reviews.
 
 ## Project structure
 
 ```text
 pov-serviceless-bookinfo/
 ├── detail/
+│   ├── handler.js
+│   ├── README.md
+│   └── serverless.yml
+├── productpage/
 │   ├── handler.js
 │   ├── README.md
 │   └── serverless.yml
@@ -49,37 +61,57 @@ pov-serviceless-bookinfo/
 │   ├── handler.js
 │   ├── README.md
 │   └── serverless.yml
-├── productpage/
-│   ├── handler.js
-│   ├── README.md
-│   └── serverless.yml
 ├── architecture.png
 ├── result.png
-├── .gitignore
 └── README.md
 ```
 
+## AWS services used
+
+| AWS service | Purpose |
+| --- | --- |
+| AWS Lambda | Runs each application service as a function. |
+| Amazon API Gateway | Exposes HTTP API endpoints for the functions. |
+| AWS IAM | Provides deployment and function execution permissions. |
+| Amazon CloudWatch | Stores Lambda logs for monitoring and troubleshooting. |
+| AWS CloudFormation | Creates and manages the resources deployed by Serverless Framework. |
+
 ## Prerequisites
 
-- AWS account
+- An AWS account
 - Node.js and npm
-- AWS CLI configured with valid credentials
+- AWS CLI installed and configured with credentials
 - Serverless Framework installed
+- IAM permissions to deploy Lambda, API Gateway, and related resources
 
-For installation and setup, see the [Serverless Framework Getting Started Guide](https://www.serverless.com/framework/docs/getting-started).
+Check that the AWS CLI can access your account:
 
-## Deploy this project
+```sh
+aws sts get-caller-identity
+```
 
-Install the Serverless Framework and configure AWS credentials before deploying.
-Clone the repository and change to its root directory:
+Check that the Serverless Framework is installed:
+
+```sh
+serverless --version
+```
+
+For setup instructions, see the [Serverless Framework Getting Started
+guide](https://www.serverless.com/framework/docs/getting-started).
+
+## Deployment
+
+### 1. Clone the repository
 
 ```sh
 git clone https://github.com/iamlwinkoko/pov-serviceless-bookinfo.git
 cd pov-serviceless-bookinfo
 ```
 
-Deploy the three backend services first, and use `serverless info` in each
-directory to find its API Gateway URL:
+### 2. Deploy the backend services
+
+Deploy each backend service and record the API Gateway base URL shown by
+`serverless info`:
 
 ```sh
 cd detail
@@ -95,13 +127,23 @@ serverless deploy
 serverless info
 ```
 
-Before deploying `productpage`, update `DETAIL_API_URL`, `RATING_API_URL`, and
-`REVIEW_API_URL` in [`productpage/serverless.yml`](./productpage/serverless.yml)
-to the backend API base URLs reported by `serverless info`. Use base URLs
-without route paths; productpage appends `/detail`, `/rating`, and the review
-routes itself.
+### 3. Configure productpage
 
-Then deploy productpage:
+Before deploying productpage, set the backend API base URLs in
+[`productpage/serverless.yml`](./productpage/serverless.yml) using the URLs
+reported above:
+
+```yaml
+environment:
+  DETAIL_API_URL: https://your-detail-api-id.execute-api.your-region.amazonaws.com
+  RATING_API_URL: https://your-rating-api-id.execute-api.your-region.amazonaws.com
+  REVIEW_API_URL: https://your-review-api-id.execute-api.your-region.amazonaws.com
+```
+
+Use each API's base URL without a route path. The productpage handler appends
+`/detail`, `/rating`, and `/review1`, `/review2`, or `/review3` as needed.
+
+### 4. Deploy productpage
 
 ```sh
 cd ../productpage
@@ -109,64 +151,41 @@ serverless deploy
 serverless info
 ```
 
-## Optional: Create a new Serverless service
-
-The repository already contains the four services. Use the interactive CLI only
-if you want to scaffold an additional service from scratch. From the parent
-directory where you want its folder created, run:
-
-```sh
-serverless
-```
-
-In the prompts, select the **AWS Node.js HTTP API** template, enter a project
-name, choose **Create a new app**, and enter an app name. Then deploy the
-generated service:
-
-```sh
-cd projectname
-serverless deploy
-serverless info
-```
-
-Replace `projectname` with the name you selected. Remove that service's AWS
-resources with `serverless remove` from its directory when you no longer need
-it.
-
 ## Testing
 
-In the `productpage` directory, get the API Gateway base URL:
+In the `productpage` directory, run `serverless info` and use the API Gateway
+base URL it reports:
+
+- Open the base URL in a browser to view the UI.
+- Append `/productpage` to the base URL to call the JSON API.
+
+For example, replace the value below with the URL from your deployment:
 
 ```sh
-serverless info
-```
-
-Open `<base-url>/` in a browser to view the UI. To test the aggregated JSON
-API, replace the example URL below with the API Gateway base URL from
-`serverless info`:
-
-```sh
-PRODUCTPAGE_URL="https://your-api-id.execute-api.your-region.amazonaws.com"
+PRODUCTPAGE_URL="https://your-productpage-api-id.execute-api.your-region.amazonaws.com"
 curl "$PRODUCTPAGE_URL/productpage"
 ```
 
-Replace the example `PRODUCTPAGE_URL` with the API Gateway base URL from your
-deployment. The screenshot shows an example integration test; its placeholder
-responses are not real book details, ratings, or reviews.
-
 ## Cleanup
 
-Remove the deployed services when testing is complete to avoid unnecessary AWS
+When testing is complete, remove the deployed services to avoid unnecessary AWS
 charges. This deletes their Lambda functions, API Gateway APIs, and related
-CloudFormation stacks, so the deployed endpoints will no longer work.
+CloudFormation stacks, so their endpoints will stop working.
 
-From the repository root:
+From the repository root, remove productpage first, followed by its backends:
 
 ```sh
-cd productpage && serverless remove
-cd ../review && serverless remove
-cd ../rating && serverless remove
-cd ../detail && serverless remove
+cd productpage
+serverless remove
+
+cd ../review
+serverless remove
+
+cd ../rating
+serverless remove
+
+cd ../detail
+serverless remove
 ```
 
 ## References
